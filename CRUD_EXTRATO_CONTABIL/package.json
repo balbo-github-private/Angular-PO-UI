@@ -1,5 +1,5 @@
 {
-  "name": "crud-produto",
+  "name": "crud_extrato_contabil",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -24,9 +24,11 @@
     "@po-ui/ng-templates": "14.12.2",
     "@totvs/po-theme": "^14.12.2",
     "@totvs/protheus-lib-core": "^14.1.1",
+    "file-saver": "^2.0.5",
     "rxjs": "~7.5.0",
     "subsink": "^1.0.2",
     "tslib": "^2.3.0",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {

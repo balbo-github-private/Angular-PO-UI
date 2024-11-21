@@ -6,6 +6,8 @@ import { ProAppConfigService} from '@totvs/protheus-lib-core';
 import { finalize } from 'rxjs/operators';
 import { analitico } from './shared_2/analitico.model';
 import { analiticoService } from './shared_2/analitico.service';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import {
   PoPageDynamicTableActions,
   PoPageDynamicTableCustomAction,
@@ -23,12 +25,14 @@ import {
 
 
 export class analiticoComponent implements OnInit {
-
+  private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+  private static readonly EXCEL_EXTENSION = '.xlsx';
   public colunasDaTabela: Array<PoTableColumn>;
   public itensDaTabela: analitico[] = [];
   public filtroBuscaAvancada: Array<PoPageDynamicSearchFilters>;
   public opcoesTela: Array<PoPageAction> = [
     { label: 'Integrar Selecionados', action: this.salvarFormulario.bind(this)  },
+    {  icon: 'ph ph-microsoft-excel-logo',label: 'Exportar para Excel', action: this.exportToExcel.bind(this) },
   ];
   public analitico: { [ID: string]: QueryParamsType } = {};
   public carregandoTabela = false;
@@ -198,11 +202,11 @@ export class analiticoComponent implements OnInit {
     this.getItens(this.page);
     console.log(this.filtrosAplicados);
   }
-/*
-  private onClick() {
-    alert('Clicked in menu item');
-  }
-*/
+
+
+
+
+  
   salvarFormulario(): void {
   
     const hiringProcessesKeys = Object.keys(this.itensDaTabela);
@@ -438,9 +442,18 @@ export class analiticoComponent implements OnInit {
   }
 
 
-   
-  
+  exportToExcel(): void {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.itensDaTabela);
+    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, 'data');
+  }
 
-
+  private saveAsExcelFile(buffer: any, fileName: string): void {
+    const data: Blob = new Blob([buffer], { type: analiticoComponent.EXCEL_TYPE });
+    saveAs(data, fileName + '_export_' + new Date().getTime() + analiticoComponent.EXCEL_EXTENSION);
+  }
 
 }
+
+

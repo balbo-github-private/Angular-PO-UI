@@ -2,6 +2,9 @@ import { Component,OnInit } from '@angular/core';
 import { PoMenuItem } from '@po-ui/ng-components';
 import { ProAppConfigService } from '@totvs/protheus-lib-core';
 
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+
 
 @Component({
   selector: 'app-root',

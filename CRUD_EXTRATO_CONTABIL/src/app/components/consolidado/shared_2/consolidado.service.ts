@@ -9,7 +9,7 @@ import { consolidadoServiceModel } from './consolidadoService.model';
   providedIn: 'root'
 })
 export class consolidadoService {
-  private url = "http://10.80.0.13:9213/rest/copersucar/insertextratoconsolidado"
+  private url = "http://172.30.1.205:9213/rest/copersucar/insertextratoconsolidado"
 
   httpOptions = {
     headers: new HttpHeaders({ 'content-Type': 'application/json' })
@@ -22,19 +22,19 @@ export class consolidadoService {
     const filter = `${(filtro.replace("-","")).replace("-","").replace("-","").replace("-","")}`
     
 
-   return this.httpClient.get<consolidadoServiceModel>(`${"http://10.80.0.13:9213/rest/extratocontabilconsolidadoCopersucar"}/${filter}`,)
+   return this.httpClient.get<consolidadoServiceModel>(`${"http://172.30.1.205:9213/rest/extratocontabilconsolidadoCopersucar"}/${filter}`,)
 
   }
 
   getById(id:string): Observable<consolidado>{
     //joao return this.httpClient.get<consolidado>(`${this.url}/${id}`)
-    return this.httpClient.get<consolidado>(`${"http://10.80.0.13:9213/rest/extratocontabilconsolidadoCopersucar"}`)
+    return this.httpClient.get<consolidado>(`${"http://172.30.1.205:9213/rest/extratocontabilconsolidadoCopersucar"}`)
   }
 
 
 
   post(formulario: consolidado): Observable<consolidado>{
-   return this.httpClient.post<consolidado>(`${"http://10.80.0.13:9213/rest/copersucar/insertextratoconsolidado"}`, [{ID:formulario}], this.httpOptions)
+   return this.httpClient.post<consolidado>(`${"http://172.30.1.205:9213/rest/copersucar/insertextratoconsolidado"}`, [{ID:formulario}], this.httpOptions)
 
   }
 

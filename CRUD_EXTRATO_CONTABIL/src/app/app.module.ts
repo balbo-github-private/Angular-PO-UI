@@ -1,7 +1,8 @@
 //import { DashComponent } from './components/dash/dash.component';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppComponent } from './app.component';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import { PoFieldModule, PoGaugeModule, PoModalModule, PoModule, PoNotificationModule, PoPageDefaultComponent, PoPageModule, PoTableModule } from '@po-ui/ng-components';
 import { PoPageDynamicSearchModule, PoPageDynamicTableModule, PoTemplatesModule } from '@po-ui/ng-templates';
 import { RouterModule } from '@angular/router';

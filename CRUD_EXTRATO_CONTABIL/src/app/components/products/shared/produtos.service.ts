@@ -9,7 +9,7 @@ import { ProdutosServiceModel } from './produtosService.model';
   providedIn: 'root'
 })
 export class ProdutosService {
-  private url = "http://10.80.0.13:9213/rest/copersucar/insertextrato"
+  private url = "http://172.30.1.205:9213/rest/copersucar/insertextrato"
 
   httpOptions = {
     headers: new HttpHeaders({ 'content-Type': 'application/json' })
@@ -22,19 +22,19 @@ export class ProdutosService {
     const filter = `${(filtro.replace("-","")).replace("-","").replace("-","").replace("-","")}`
     
 
-   return this.httpClient.get<ProdutosServiceModel>(`${"http://10.80.0.13:9213/rest/extratocontabilrazaoCopersucar"}/${filter}`,)
+   return this.httpClient.get<ProdutosServiceModel>(`${"http://172.30.1.205:9213/rest/extratocontabilrazaoCopersucar"}/${filter}`,)
 
   }
 
   getById(id:string): Observable<Produtos>{
     //joao return this.httpClient.get<Produtos>(`${this.url}/${id}`)
-    return this.httpClient.get<Produtos>(`${"http://10.80.0.13:9213/rest/extratocontabilrazaoCopersucar"}`)
+    return this.httpClient.get<Produtos>(`${"http://172.30.1.205:9213/rest/extratocontabilrazaoCopersucar"}`)
   }
 
 
 
   post(formulario: Produtos): Observable<Produtos>{
-   return this.httpClient.post<Produtos>(`${"http://10.80.0.13:9213/rest/copersucar/insertextrato"}`, [{ID:formulario}], this.httpOptions)
+   return this.httpClient.post<Produtos>(`${"http://172.30.1.205:9213/rest/copersucar/insertextrato"}`, [{ID:formulario}], this.httpOptions)
 
   }
 

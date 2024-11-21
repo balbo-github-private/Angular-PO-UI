@@ -10,7 +10,7 @@ import { PoDialogModule } from '@po-ui/ng-components';
   providedIn: 'root'
 })
 export class ProdutosService {
-  private url = "http://10.80.0.13:9213/rest/extratocontabilrazaoCopersucar"
+  private url = "http://172.30.1.205:9213/rest/extratocontabilrazaoCopersucar"
 
   httpOptions = {
     headers: new HttpHeaders({ 'content-Type': 'application/json' })

@@ -9,7 +9,7 @@ import { analiticoServiceModel } from './analiticoService.model';
   providedIn: 'root'
 })
 export class analiticoService {
-  private url = "http://10.80.0.13:9213/rest/copersucar/insertextratoanalitico"
+  private url = "http://172.30.1.205:9213/rest/copersucar/insertextratoanalitico"
 
   httpOptions = {
     headers: new HttpHeaders({ 'content-Type': 'application/json' })
@@ -22,19 +22,19 @@ export class analiticoService {
     const filter = `${(filtro.replace("-","")).replace("-","").replace("-","").replace("-","")}`
     
 
-   return this.httpClient.get<analiticoServiceModel>(`${"http://10.80.0.13:9213/rest/extratocontabilanaliticoCopersucar"}/${filter}`,)
+   return this.httpClient.get<analiticoServiceModel>(`${"http://172.30.1.205:9213/rest/extratocontabilanaliticoCopersucar"}/${filter}`,)
 
   }
 
   getById(id:string): Observable<analitico>{
     //joao return this.httpClient.get<analitico>(`${this.url}/${id}`)
-    return this.httpClient.get<analitico>(`${"http://10.80.0.13:9213/rest/extratocontabilanaliticoCopersucar"}`)
+    return this.httpClient.get<analitico>(`${"http://172.30.1.205:9213/rest/extratocontabilanaliticoCopersucar"}`)
   }
 
 
 
   post(formulario: analitico): Observable<analitico>{
-   return this.httpClient.post<analitico>(`${"http://10.80.0.13:9213/rest/copersucar/insertextratoanalitico"}`, [{ID:formulario}], this.httpOptions)
+   return this.httpClient.post<analitico>(`${"http://172.30.1.205:9213/rest/copersucar/insertextratoanalitico"}`, [{ID:formulario}], this.httpOptions)
 
   }
 

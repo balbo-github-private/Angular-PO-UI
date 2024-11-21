@@ -14,7 +14,7 @@ export class DashService {
   constructor(private httpClient: HttpClient) {}
 
   getModulos(): Observable<any>{
-    const url = "http://10.80.0.13:9213/rest/extratocontabilrazaoCopersucar"
+    const url = "http://172.30.1.205:9213/rest/extratocontabilrazaoCopersucar"
     return this.httpClient.get<any>(`${url}`,)
   }
 }
