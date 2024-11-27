@@ -6,6 +6,8 @@ import { ProAppConfigService} from '@totvs/protheus-lib-core';
 import { finalize } from 'rxjs/operators';
 import { Produtos } from './shared/produtos.model';
 import { ProdutosService } from './shared/produtos.service';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import {
   PoPageDynamicTableActions,
   PoPageDynamicTableCustomAction,
@@ -23,12 +25,14 @@ import {
 
 
 export class ProductsComponent implements OnInit {
-
+  private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+  private static readonly EXCEL_EXTENSION = '.xlsx';
   public colunasDaTabela: Array<PoTableColumn>;
   public itensDaTabela: Produtos[] = [];
   public filtroBuscaAvancada: Array<PoPageDynamicSearchFilters>;
   public opcoesTela: Array<PoPageAction> = [
     { label: 'Integrar Selecionados', action: this.salvarFormulario.bind(this)  },
+    {  icon: 'ph ph-microsoft-excel-logo',label: 'Exportar para Excel', action: this.exportToExcel.bind(this) },
   ];
   public produto: { [ID: string]: QueryParamsType } = {};
   public carregandoTabela = false;
@@ -238,21 +242,23 @@ export class ProductsComponent implements OnInit {
     console.log(filter)
     this.itensDaTabela = this.filter(filter);
   }
-
+  
   retornaBuscaAvançada(): PoPageDynamicSearchFilters[] {
     return [
-      { property: 'Data de', type: 'date', gridColumns: 4 },
-      { property: 'Data até', type: 'date', gridColumns: 4 },
+      { property: 'Data de', type: 'date', gridColumns: 4, required: true },
+      { property: 'Data até', type: 'date', gridColumns: 4, required: true },
       {
         property: 'Empresa',
-        gridColumns: 12 ,
-       type: 'string',
+        gridColumns: 12,
+        type: 'string',
         options: [
           { value: '2', label: '2 - Usina Santo Antônio' },
           { value: '3', label: '3 - Usina São Francisco' },
           { value: '9', label: '9 - Usina Uberaba' },
         ],
-      }
+        required: true
+      },
+      { property: 'Conta', type: 'string', gridColumns: 4 } // Filtro opcional
     ];
   }
 
@@ -407,6 +413,17 @@ export class ProductsComponent implements OnInit {
 
   }
 
+  exportToExcel(): void {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.itensDaTabela);
+    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, 'data');
+  }
+
+  private saveAsExcelFile(buffer: any, fileName: string): void {
+    const data: Blob = new Blob([buffer], { type: ProductsComponent.EXCEL_TYPE });
+    saveAs(data, fileName + '_export_' + new Date().getTime() + ProductsComponent.EXCEL_EXTENSION);
+  }
 
    
   

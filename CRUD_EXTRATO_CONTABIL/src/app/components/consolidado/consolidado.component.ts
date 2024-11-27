@@ -6,6 +6,8 @@ import { ProAppConfigService} from '@totvs/protheus-lib-core';
 import { finalize } from 'rxjs/operators';
 import { consolidado } from './shared_2/consolidado.model';
 import { consolidadoService } from './shared_2/consolidado.service';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
 import {
   PoPageDynamicTableActions,
   PoPageDynamicTableCustomAction,
@@ -23,12 +25,14 @@ import {
 
 
 export class consolidadoComponent implements OnInit {
-
+  private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+  private static readonly EXCEL_EXTENSION = '.xlsx';
   public colunasDaTabela: Array<PoTableColumn>;
   public itensDaTabela: consolidado[] = [];
   public filtroBuscaAvancada: Array<PoPageDynamicSearchFilters>;
   public opcoesTela: Array<PoPageAction> = [
     { label: 'Integrar Selecionados', action: this.salvarFormulario.bind(this)  },
+    {  icon: 'ph ph-microsoft-excel-logo',label: 'Exportar para Excel', action: this.exportToExcel.bind(this) },
   ];
   public consolidado: { [ID: string]: QueryParamsType } = {};
   public carregandoTabela = false;
@@ -225,18 +229,13 @@ export class consolidadoComponent implements OnInit {
   }
 
   buscaconsolidado(consolidado: any) {
-  //  this.filtrosAplicados = consolidado;
-  //  this.page = 1;
-  //  consolidado.length > 0 ? this.filtrosAplicados = 'codigo=' + consolidado : this.filtrosAplicados = '';
-//console.log(consolidado)
- //   this.getItens(this.page);
- consolidado ? this.searchItems(consolidado) : this.resetFilters();
- console.log(consolidado)
+    consolidado ? this.searchItems(consolidado) : this.resetFilters();
+    console.log(consolidado);
   }
 
-  resetFilters() {
-   this.getItens();
-  }
+resetFilters() {
+  this.getItens();
+}
 
   private searchItems(filter: any) {
     console.log(filter)
@@ -244,21 +243,22 @@ export class consolidadoComponent implements OnInit {
   }
 
   retornaBuscaAvançada(): PoPageDynamicSearchFilters[] {
-    return [
-      { property: 'AnoMês de  (AAAAMM)', type: 'string', gridColumns: 4 },
-      { property: 'AnoMês até (AAAAMM)', type: 'string', gridColumns: 4 },
-      {
-        property: 'Empresa',
-        gridColumns: 12 ,
-       type: 'string',
-        options: [
-          { value: '2', label: '2 - Usina Santo Antônio' },
-          { value: '3', label: '3 - Usina São Francisco' },
-          { value: '9', label: '9 - Usina Uberaba' },
-        ],
-      },
-
+    const filters = [
+      { property: 'Empresa', type: 'string', gridColumns: 12, options: [
+        { value: '2', label: '2 - Usina Santo Antônio' },
+        { value: '3', label: '3 - Usina São Francisco' },
+        { value: '9', label: '9 - Usina Uberaba' },
+      ], required: true }, // Definindo como obrigatório
+      { property: 'AnoMês de  (AAAAMM)', type: 'string', gridColumns: 4, required: true }, // Definindo como obrigatório
+      { property: 'AnoMês até (AAAAMM)', type: 'string', gridColumns: 4, required: true }, // Definindo como obrigatório
+      { property: 'Conta', type: 'string', gridColumns: 4 } // Filtro opcional
     ];
+  
+    const order = ['AnoMês de  (AAAAMM)', 'AnoMês até (AAAAMM)', 'Empresa', 'Conta'];
+  
+    filters.sort((a, b) => order.indexOf(a.property) - order.indexOf(b.property));
+  
+    return filters;
   }
 
 
@@ -272,16 +272,29 @@ export class consolidadoComponent implements OnInit {
     }
   ];
 
-  realizaBuscaAvancada(retornoBuscaAvancada: {
-    [ID: string]: QueryParamsType;
-  }): void {
+  realizaBuscaAvancada(retornoBuscaAvancada: { [ID: string]: QueryParamsType }): void {
     this.filtrosAplicados = '';
-    for (let atributo in retornoBuscaAvancada) {
-      if (retornoBuscaAvancada.hasOwnProperty(atributo)) {
-        this.filtrosAplicados += `${''}${(retornoBuscaAvancada[atributo])}/`;
-       
+  
+    // Defina a ordem desejada das propriedades e torne-as obrigatórias
+    const ordemPropriedades = ['AnoMês de  (AAAAMM)', 'AnoMês até (AAAAMM)', 'Empresa', 'Conta'];
+    const filtrosObrigatorios = ['AnoMês de  (AAAAMM)', 'AnoMês até (AAAAMM)', 'Empresa'];
+  
+    // Verifique se todos os filtros obrigatórios estão presentes
+    for (let filtro of filtrosObrigatorios) {
+      if (!retornoBuscaAvancada.hasOwnProperty(filtro)) {
+        console.error(`O filtro ${filtro} é obrigatório.`);
+        return; // Saia da função se algum filtro obrigatório estiver faltando
       }
     }
+  
+    // Ordene os atributos de acordo com a ordem desejada
+    const atributosOrdenados = ordemPropriedades.filter(prop => retornoBuscaAvancada.hasOwnProperty(prop));
+  
+    // Construa a string de filtros na ordem correta
+    for (let atributo of atributosOrdenados) {
+      this.filtrosAplicados += `${retornoBuscaAvancada[atributo]}/`;
+    }
+  
     this.page = 1;
     this.getItens();
   }
@@ -363,7 +376,7 @@ export class consolidadoComponent implements OnInit {
       },
       {
         property: 'SALDO_FINAL',
-        label: 'Saldo Inicial',
+        label: 'Saldo Final',
         width: '30%',
       },
       {
@@ -410,8 +423,47 @@ export class consolidadoComponent implements OnInit {
 
 
    
-  
+  exportToExcel(): void {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.itensDaTabela);
 
+    // Adiciona filtros nas colunas
+    worksheet['!autofilter'] = { ref: "A1:Z1" };
+
+    // Define estilos para as células
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cell_address = XLSX.utils.encode_cell({ c: C, r: 0 });
+      if (!worksheet[cell_address]) continue;
+
+      // Adiciona estilos ao cabeçalho
+      worksheet[cell_address].s = {
+        fill: {
+          fgColor: { rgb: "FFFFAA00" } // Cor de fundo amarela
+        },
+        font: {
+          name: 'Arial',
+          sz: 12,
+          bold: true,
+          color: { rgb: "FF000000" } // Cor da fonte preta
+        },
+        border: {
+          top: { style: "thin", color: { rgb: "FF000000" } },
+          bottom: { style: "thin", color: { rgb: "FF000000" } },
+          left: { style: "thin", color: { rgb: "FF000000" } },
+          right: { style: "thin", color: { rgb: "FF000000" } }
+        }
+      };
+    }
+
+    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, 'data');
+  }
+
+  private saveAsExcelFile(buffer: any, fileName: string): void {
+    const data: Blob = new Blob([buffer], { type: consolidadoComponent.EXCEL_TYPE });
+    saveAs(data, fileName + '_export_' + new Date().getTime() + consolidadoComponent.EXCEL_EXTENSION);
+  }
 
 
 }

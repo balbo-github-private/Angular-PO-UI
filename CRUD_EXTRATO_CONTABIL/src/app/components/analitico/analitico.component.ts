@@ -255,22 +255,6 @@ export class analiticoComponent implements OnInit {
     this.itensDaTabela = this.filter(filter);
   }
 
-  retornaBuscaAvançada(): PoPageDynamicSearchFilters[] {
-    return [
-      { property: 'Data de', type: 'date', gridColumns: 4 },
-      { property: 'Data até', type: 'date', gridColumns: 4 },
-      {
-        property: 'Empresa',
-        gridColumns: 12 ,
-       type: 'string',
-        options: [
-          { value: '2', label: '2 - Usina Santo Antônio' },
-          { value: '3', label: '3 - Usina São Francisco' },
-          { value: '9', label: '9 - Usina Uberaba' },
-        ],
-      }
-    ];
-  }
 
 
   pageCustomActions: Array<PoPageDynamicTableCustomAction> = [
@@ -283,6 +267,24 @@ export class analiticoComponent implements OnInit {
     }
   ];
 
+  retornaBuscaAvançada(): PoPageDynamicSearchFilters[] {
+    return [
+      { property: 'Data de', type: 'date', gridColumns: 4, required: true },
+      { property: 'Data até', type: 'date', gridColumns: 4, required: true },
+      {
+        property: 'Empresa',
+        gridColumns: 12,
+        type: 'string',
+        options: [
+          { value: '2', label: '2 - Usina Santo Antônio' },
+          { value: '3', label: '3 - Usina São Francisco' },
+          { value: '9', label: '9 - Usina Uberaba' },
+        ],
+        required: true
+      },
+      { property: 'Conta', type: 'string', gridColumns: 4 } // Filtro opcional
+    ];
+  }
   realizaBuscaAvancada(retornoBuscaAvancada: {
     [ID: string]: QueryParamsType;
   }): void {
